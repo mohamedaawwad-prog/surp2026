@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SURP 2026 — LLMs in Supply Chain Decision Making</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0B2545;--navy-mid:#1A3A6B;--navy-light:#2B5FAD;--sky:#4A9FD5;--sky-light:#D6ECFA;
+  --gold:#C8952A;--gold-light:#FDF3E0;--cream:#F8F6F1;--white:#FFFFFF;
+  --gray-100:#F2F1EE;--gray-200:#E0DEDB;--gray-400:#9C9993;--gray-600:#5C5A57;--gray-800:#2E2D2B;
+  --green:#1A7A4A;--green-light:#E3F4EC;--red:#B83232;--red-light:#FAEAEA;--amber:#B87000;--amber-light:#FEF5E4;
+  --fd:'DM Serif Display',Georgia,serif;--fb:'Inter',system-ui,sans-serif;
+  --r:8px;--rl:14px;
+}
+body{font-family:var(--fb);background:var(--cream);color:var(--gray-800);font-size:15px;line-height:1.7;min-height:100vh;}
+nav{position:sticky;top:0;z-index:100;background:var(--navy);display:flex;align-items:center;padding:0 2rem;height:56px;box-shadow:0 2px 12px rgba(0,0,0,.18);}
+.nb{font-family:var(--fd);color:#fff;font-size:15px;margin-right:auto;}
+.nb span{color:var(--sky);}
+.nl{display:flex;list-style:none;}
+.nl a{display:block;color:rgba(255,255,255,.72);text-decoration:none;font-size:12px;font-weight:500;padding:0 11px;height:56px;line-height:56px;white-space:nowrap;transition:color .15s,background .15s;}
+.nl a:hover,.nl a.active{color:#fff;background:rgba(255,255,255,.08);}
+.nl a.active{border-bottom:2px solid var(--sky);}
+.page{display:none;}.page.active{display:block;}
+.hero{background:var(--navy);padding:4rem 2rem 3.5rem;text-align:center;}
+.hero .ey{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--sky);margin-bottom:1rem;}
+.hero h1{font-family:var(--fd);color:#fff;font-size:clamp(22px,4vw,38px);line-height:1.2;max-width:820px;margin:0 auto 1rem;}
+.hero h1 em{color:var(--sky);font-style:normal;}
+.hero p{color:rgba(255,255,255,.65);max-width:640px;margin:0 auto;font-size:15px;}
+.con{max-width:960px;margin:0 auto;padding:2.5rem 2rem;}
+.conw{max-width:1120px;margin:0 auto;padding:2.5rem 2rem;}
+.card{background:#fff;border-radius:var(--rl);border:1px solid var(--gray-200);padding:1.5rem 1.75rem;box-shadow:0 1px 3px rgba(0,0,0,.07);}
+.sl{font-size:11px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--navy-light);margin-bottom:.5rem;}
+.st{font-family:var(--fd);font-size:26px;color:var(--navy);margin-bottom:.5rem;}
+.tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;padding:3px 9px;border-radius:4px;line-height:1.6;}
+.tn{background:var(--navy);color:#fff;}.ts{background:var(--sky-light);color:var(--navy-mid);}
+.tg{background:var(--gold-light);color:var(--amber);}.tgr{background:var(--green-light);color:var(--green);}
+.tr{background:var(--red-light);color:var(--red);}.tgray{background:var(--gray-100);color:var(--gray-600);}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem;}
+.g3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;}
+.sc{background:#fff;border:1px solid var(--gray-200);border-radius:var(--rl);padding:1.25rem 1.5rem;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.07);}
+.sc .sv{font-family:var(--fd);font-size:32px;color:var(--navy);line-height:1;margin-bottom:.4rem;}
+.sc .sl2{font-size:12px;color:var(--gray-600);font-weight:500;}
+.div{height:1px;background:var(--gray-200);margin:2rem 0;}
+.tl{position:relative;}.tl::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:2px;background:var(--gray-200);}
+.mi{position:relative;padding-left:56px;margin-bottom:1.5rem;}
+.md{position:absolute;left:12px;top:4px;width:18px;height:18px;border-radius:50%;border:2px solid #fff;background:var(--gray-400);}
+.md.done{background:var(--green);box-shadow:0 0 0 2px var(--green-light);}
+.md.up{background:var(--navy-light);box-shadow:0 0 0 2px var(--sky-light);}
+.md.crit{background:var(--red);box-shadow:0 0 0 2px var(--red-light);}
+.mc{background:#fff;border:1px solid var(--gray-200);border-radius:var(--rl);padding:1rem 1.25rem;box-shadow:0 1px 3px rgba(0,0,0,.07);}
+.mc h4{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:3px;}
+.mc .mdate{font-size:12px;color:var(--gray-400);font-weight:500;margin-bottom:4px;}
+.mc p{font-size:13px;color:var(--gray-600);margin:0;}
+.wt{width:100%;border-collapse:collapse;font-size:13px;}
+.wt th{background:var(--navy);color:rgba(255,255,255,.85);font-weight:600;padding:10px 14px;text-align:left;font-size:12px;}
+.wt th:first-child{border-radius:8px 0 0 0;}.wt th:last-child{border-radius:0 8px 0 0;}
+.wt td{padding:10px 14px;border-bottom:1px solid var(--gray-100);vertical-align:top;color:var(--gray-800);line-height:1.55;}
+.wt tr:last-child td{border-bottom:none;}.wt tr:nth-child(even) td{background:var(--cream);}
+.wn{font-weight:700;color:var(--navy);font-size:13px;white-space:nowrap;}
+.wt ul{padding-left:16px;margin:0;}.wt li{margin-bottom:3px;}
+.mb{display:inline-block;background:var(--gold-light);color:var(--amber);font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;margin-top:4px;}
+.mbr{display:inline-block;background:var(--red-light);color:var(--red);font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;margin-top:4px;}
+.pc{background:#fff;border:1px solid var(--gray-200);border-radius:var(--rl);padding:1.25rem 1.5rem;box-shadow:0 1px 3px rgba(0,0,0,.07);margin-bottom:1rem;}
+.pc .pj{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--navy-light);margin-bottom:.35rem;}
+.pc h4{font-size:15px;font-weight:600;color:var(--navy);margin-bottom:.3rem;line-height:1.4;}
+.pc .pa{font-size:13px;color:var(--gray-600);margin-bottom:.6rem;}
+.pc .pabs{font-size:13px;color:var(--gray-600);line-height:1.6;}
+.pc .pt{display:flex;flex-wrap:wrap;gap:6px;margin-top:.75rem;}
+.sb{background:#fff;border:1px solid var(--gray-200);border-radius:var(--rl);padding:1.5rem 1.75rem;margin-bottom:1.25rem;box-shadow:0 1px 3px rgba(0,0,0,.07);}
+.sh{display:flex;align-items:center;gap:14px;margin-bottom:1rem;}
+.sn{width:36px;height:36px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb h3{font-size:16px;font-weight:600;color:var(--navy);}
+.sb p,.sb li{font-size:14px;color:var(--gray-600);margin-bottom:8px;}
+.sb ul,.sb ol{padding-left:20px;}.sb li{margin-bottom:5px;}
+.tip{background:var(--sky-light);border-left:3px solid var(--sky);border-radius:0 var(--r) var(--r) 0;padding:.75rem 1rem;margin-top:1rem;font-size:13px;color:var(--navy-mid);}
+.warn{background:var(--amber-light);border-left:3px solid var(--gold);border-radius:0 var(--r) var(--r) 0;padding:.75rem 1rem;margin-top:1rem;font-size:13px;color:var(--amber);}
+.info{background:var(--sky-light);border:1px solid rgba(74,159,213,.3);border-radius:var(--rl);padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:13px;color:var(--navy-mid);}
+.cb{background:var(--gray-800);color:#9CDCFE;font-family:'Courier New',monospace;font-size:12.5px;border-radius:var(--r);padding:1rem 1.25rem;margin-top:.75rem;line-height:1.6;white-space:pre-wrap;overflow-x:auto;}
+.mcard{background:#fff;border:1px solid var(--gray-200);border-radius:var(--rl);padding:2rem;display:flex;gap:2rem;align-items:flex-start;box-shadow:0 1px 3px rgba(0,0,0,.07);}
+.mav{width:80px;height:80px;border-radius:50%;background:var(--navy);color:#fff;font-family:var(--fd);font-size:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.minfo h3{font-size:19px;color:var(--navy);margin-bottom:3px;}
+.minfo .mt{font-size:13px;color:var(--gray-600);margin-bottom:1rem;}
+.mm{display:flex;flex-wrap:wrap;gap:8px;}
+.mmi{font-size:12px;color:var(--gray-600);display:flex;align-items:center;gap:5px;}
+.mmi svg{width:13px;height:13px;opacity:.6;}
+.vc{background:#fff;border:1px solid var(--gray-200);border-radius:var(--rl);padding:1rem 1.25rem;display:flex;align-items:center;gap:14px;margin-top:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.07);}
+.vi{width:40px;height:40px;background:#FF0000;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.vi svg{width:20px;height:20px;fill:white;}
+.vinfo p{font-size:13px;font-weight:600;color:var(--navy);margin:0 0 2px;}
+.vinfo span{font-size:12px;color:var(--gray-400);}
+.rqc{background:#fff;border:1px solid var(--gray-200);border-left:4px solid var(--navy-light);border-radius:0 var(--rl) var(--rl) 0;padding:1.25rem 1.5rem;box-shadow:0 1px 3px rgba(0,0,0,.07);margin-bottom:1rem;}
+.rql{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--navy-light);margin-bottom:.4rem;}
+.rqc p{font-size:14px;color:var(--gray-800);margin:0;line-height:1.6;}
+.sct{width:100%;border-collapse:collapse;font-size:13px;}
+.sct th{background:var(--navy);color:rgba(255,255,255,.85);padding:9px 13px;text-align:left;font-size:12px;font-weight:600;}
+.sct th:first-child{border-radius:8px 0 0 0;}.sct th:last-child{border-radius:0 8px 0 0;}
+.sct td{padding:9px 13px;border-bottom:1px solid var(--gray-100);vertical-align:top;font-size:13px;color:var(--gray-800);line-height:1.5;}
+.sct tr:last-child td{border-bottom:none;}.sct tr:nth-child(even) td{background:var(--cream);}
+.ph{background:var(--green-light);color:var(--green);font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;white-space:nowrap;}
+.pm{background:var(--sky-light);color:var(--navy-mid);font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;white-space:nowrap;}
+.pl{background:var(--gray-100);color:var(--gray-600);font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px;white-space:nowrap;}
+footer{background:var(--navy);color:rgba(255,255,255,.45);text-align:center;padding:2rem;font-size:12px;margin-top:4rem;}
+footer strong{color:rgba(255,255,255,.75);}
+a{color:var(--navy-light);}
+h4.ch{font-size:13px;font-weight:600;color:var(--navy);margin:1rem 0 .5rem;}
+@media(max-width:640px){
+  nav{padding:0 1rem;}.nb{font-size:13px;}.nl a{padding:0 7px;font-size:11px;}
+  .con,.conw{padding:1.5rem 1rem;}.mcard{flex-direction:column;}.hero{padding:2.5rem 1rem 2rem;}
+  .wt{font-size:12px;}.wt td,.wt th{padding:8px 10px;}
+}
+</style>
+</head>
+<body>
+<nav>
+  <span class="nb">SURP <span>2026</span></span>
+  <ul class="nl">
+    <li><a href="#" onclick="showPage('overview');return false;" id="nav-overview" class="active">Overview</a></li>
+    <li><a href="#" onclick="showPage('rq');return false;" id="nav-rq">Research Questions</a></li>
+    <li><a href="#" onclick="showPage('milestones');return false;" id="nav-milestones">Milestones</a></li>
+    <li><a href="#" onclick="showPage('schedule');return false;" id="nav-schedule">Weekly Plan</a></li>
+    <li><a href="#" onclick="showPage('literature');return false;" id="nav-literature">Literature</a></li>
+    <li><a href="#" onclick="showPage('resources');return false;" id="nav-resources">Research Guide</a></li>
+  </ul>
+</nav>
+
+<!-- PAGE 1: OVERVIEW -->
+<div id="page-overview" class="page active">
+  <div class="hero">
+    <p class="ey">Cal Poly CENG SURP 2026 · Industrial and Manufacturing Engineering</p>
+    <h1>Comparative Evaluation of <em>LLMs</em> for Operational Decision Making in Supply Chains</h1>
+    <p>An 8-week undergraduate research project benchmarking large language models as supply chain decision agents and building supply chain-specific LLM agent frameworks.</p>
+  </div>
+  <div class="con">
+    <div class="g4" style="margin-bottom:2rem;">
+      <div class="sc"><div class="sv">8</div><div class="sl2">Research Weeks</div></div>
+      <div class="sc"><div class="sv">20</div><div class="sl2">Hours / Week</div></div>
+      <div class="sc"><div class="sv">3+</div><div class="sl2">LLMs Evaluated</div></div>
+      <div class="sc"><div class="sv">$500</div><div class="sl2">Supply Budget</div></div>
+    </div>
+    <div class="info">
+      <strong>About the LLMs and how we interact with them:</strong> Priority is given to free, Cal Poly-licensed tools: ChatGPT (Cal Poly EDU), Microsoft Copilot (Cal Poly), and Gemini (free tier). A Claude subscription may be purchased if needed. LLMs will be used in two modes: (1) <strong>Chat interface benchmarking</strong> — structured prompts submitted through each model's standard chat UI; and (2) <strong>Programmatic access / API calls</strong> using Python and LangChain, or no-code builders such as Make.com, which may be preferred for scalability and cost efficiency. The student is encouraged to prioritize no-code builders where feasible, but Python and LangChain are fully acceptable. The approach will be decided together in Week 2.
+    </div>
+    <p class="sl">Project Team</p>
+    <h2 class="st">Faculty Mentor</h2>
+    <div class="mcard" style="margin-bottom:1.25rem;">
+      <div class="mav">MA</div>
+      <div class="minfo">
+        <h3>Dr. Mohamed A. Awwad</h3>
+        <p class="mt">Ph.D., MBA, CPEM, CSCP, CSM · Associate Professor and Senior Project Coordinator, IME Dept.<br>President-elect, IISE Logistics and Supply Chain Division · Cal Poly San Luis Obispo</p>
+        <div class="mm">
+          <span class="mmi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>mawwad@calpoly.edu</span>
+          <span class="mmi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Engineering IV, Bldg 192, Rm 226</span>
+        </div>
+      </div>
+    </div>
+    <h2 class="st">Student Researcher</h2>
+    <div class="mcard">
+      <div class="mav" style="background:var(--navy-mid);">JH</div>
+      <div class="minfo">
+        <h3>Jeongmin Hwang</h3>
+        <p class="mt">Undergraduate Researcher · Industrial Engineering, Cal Poly SLO</p>
+        <div class="mm">
+          <span class="mmi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>jhwang50@calpoly.edu</span>
+          <span class="mmi">Fully Remote · Start: June 22, 2026</span>
+        </div>
+      </div>
+    </div>
+    <div class="div"></div>
+    <p class="sl">Research Abstract</p>
+    <h2 class="st">Project Overview</h2>
+    <div class="card">
+      <p style="font-size:15px;line-height:1.8;">Large Language Models (LLMs) are increasingly proposed as decision agents in supply chain planning, procurement, and logistics systems. However, existing research primarily demonstrates single-model implementations without systematic cross-model benchmarking, standardized evaluation protocols, or quantitative validation across operational scenarios.</p>
+      <br>
+      <p style="font-size:15px;line-height:1.8;">This project develops a structured and reproducible benchmarking framework to evaluate multiple LLMs on defined supply chain decision tasks including <strong>inventory control</strong>, <strong>disruption response</strong>, and <strong>supplier selection</strong> (to be confirmed following the initial literature review). A key component is the <strong>creation of supply chain LLM agents</strong> inspired by the multi-agent consensus-seeking approach of Jannelli et al. (2025), implemented through no-code/low-code platforms such as Make.com or Python/LangChain.</p>
+    </div>
+    <div class="div"></div>
+    <p class="sl">The Gap This Project Addresses</p>
+    <h2 class="st">Rooted in the Literature</h2>
+    <div class="g2" style="margin-bottom:1.5rem;">
+      <div class="card" style="border-left:4px solid var(--red);">
+        <p class="tag tr" style="margin-bottom:.75rem;">What Jannelli et al. (2025) call for</p>
+        <h4 style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:.5rem;">The Identified Gap</h4>
+        <p style="font-size:13px;color:var(--gray-600);">Jannelli et al. (2025) identify in Section 2.4 the absence of supply chain-specific LLM benchmarking environments as a critical gap. Their work uses multiple foundation models but lacks a structured, reproducible cross-model evaluation protocol with standardized prompts and baseline comparisons.</p>
+      </div>
+      <div class="card" style="border-left:4px solid var(--green);">
+        <p class="tag tgr" style="margin-bottom:.75rem;">This project contributes</p>
+        <h4 style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:.5rem;">What We Build and Add</h4>
+        <p style="font-size:13px;color:var(--gray-600);">Building on Jannelli et al. (2025): (1) design and test SC LLM agent frameworks; (2) compare multiple LLMs with standardized prompts and metrics; (3) evaluate consistency, cost impact, and interpretability across models; (4) as a secondary objective, extend the iSCDT framework (Kramer and Awwad, 2025) with empirical LLM performance evidence.</p>
+      </div>
+    </div>
+    <div class="div"></div>
+    <p class="sl">Administrative</p>
+    <h2 class="st">Budget and Program Details</h2>
+    <div class="g2">
+      <div class="card">
+        <h4 style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:.75rem;">Supply Budget — $500</h4>
+        <p style="font-size:13px;color:var(--gray-600);">Primary use: <strong>IISE 2027 conference registration</strong> (2026 student rate was $465; 2027 will be higher). After registration, IISE student membership ($44) if funds remain. A Claude subscription may be added if needed. Cannot be used for personnel.</p>
+      </div>
+      <div class="card">
+        <h4 style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:.75rem;">Shared OneDrive Folder</h4>
+        <p style="font-size:13px;color:var(--gray-600);">All project materials live in a <strong>shared Microsoft OneDrive folder</strong>. Dr. Awwad uses OneDrive and Microsoft 365. Do not use Google Drive or Google Docs for any project deliverables.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2: RESEARCH QUESTIONS -->
+<div id="page-rq" class="page">
+  <div class="hero">
+    <p class="ey">Research Design</p>
+    <h1>Research Questions and <em>Decision Tasks</em></h1>
+    <p>The guiding questions and the supply chain decision landscape. All are subject to refinement after the literature review in Weeks 1 and 2.</p>
+  </div>
+  <div class="con">
+    <div class="warn" style="border-radius:var(--rl);margin-bottom:2rem;">
+      <strong>Important note:</strong> The research questions and decision tasks below are preliminary and <strong>subject to change</strong> as the literature review deepens. Dr. Awwad and Jeongmin will collaboratively finalize them at the end of Week 2.
+    </div>
+    <p class="sl">Preliminary Research Questions</p>
+    <h2 class="st" style="margin-bottom:1.5rem;">Guiding Questions for the Study</h2>
+    <div class="rqc"><div class="rql">Research Question 1 — Primary</div><p>How do different large language models compare in performance when used as decision agents for operational supply chain tasks — in terms of decision quality, output consistency, reasoning transparency, and cost implications relative to established baseline heuristics?</p></div>
+    <div class="rqc"><div class="rql">Research Question 2 — Methodological</div><p>What constitutes a standardized, reproducible benchmarking protocol for evaluating LLM performance on structured supply chain decision tasks, and how should prompt design, scenario variation, and evaluation rubrics be structured to enable fair cross-model comparison?</p></div>
+    <div class="rqc"><div class="rql">Research Question 3 — Agent Design</div><p>To what extent can supply chain LLM agents — built using no-code platforms or Python/LangChain and inspired by the consensus-seeking architecture of Jannelli et al. (2025) — outperform standalone LLM chat responses on the same supply chain decision tasks?</p></div>
+    <div class="rqc"><div class="rql">Research Question 4 — Integration (Secondary)</div><p>How do the empirical LLM benchmarking findings of this project inform the feasibility of integrating LLM agents as decision components within the iSCDT framework introduced by Kramer and Awwad (2025)?</p></div>
+    <div class="div"></div>
+    <p class="sl">Supply Chain Decision Landscape</p>
+    <h2 class="st">Decision Tasks Under Consideration</h2>
+    <p style="color:var(--gray-600);margin-bottom:1.5rem;">The table below maps candidate supply chain decision categories. Final task selection will be confirmed after the Week 1-2 literature review. All priorities are subject to change.</p>
+    <div class="card" style="padding:0;overflow:hidden;border-radius:var(--rl);margin-bottom:1.5rem;">
+      <table class="sct">
+        <thead><tr><th>Decision Category</th><th>Description</th><th>Baseline</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Inventory Management</strong></td><td>Reorder points, order quantities, safety stock to balance holding costs and service levels.</td><td>EOQ, (s,S) policy</td><td><span class="ph">High</span></td></tr>
+          <tr><td><strong>Disruption Response / Risk</strong></td><td>Responding to supply disruptions, logistics delays, demand shocks. Selecting alternatives and buffer strategies.</td><td>Heuristic response rules</td><td><span class="ph">High</span></td></tr>
+          <tr><td><strong>Supplier Selection</strong></td><td>Evaluating and ranking suppliers on cost, quality, lead time, risk, and strategic fit.</td><td>Weighted scoring matrix, AHP</td><td><span class="ph">High</span></td></tr>
+          <tr><td><strong>Supply Chain Risk Management</strong></td><td>Identifying, assessing, and prioritizing SC risks and selecting mitigation strategies.</td><td>Risk scoring matrices</td><td><span class="ph">High</span></td></tr>
+          <tr><td><strong>SC Network Design</strong></td><td>Number and location of facilities, which markets to serve from which nodes.</td><td>MIP models, heuristics</td><td><span class="pm">Medium</span></td></tr>
+          <tr><td><strong>Facility Location</strong></td><td>Selecting where to locate warehouses or DCs to minimize total cost.</td><td>P-median, set covering</td><td><span class="pm">Medium</span></td></tr>
+          <tr><td><strong>Transportation Decisions</strong></td><td>Mode and carrier selection, routing, load planning to minimize cost and meet delivery windows.</td><td>Transportation LP, routing heuristics</td><td><span class="pm">Medium</span></td></tr>
+          <tr><td><strong>Demand Forecasting</strong></td><td>Predicting future demand using statistical models or LLM reasoning.</td><td>Moving average, ARIMA</td><td><span class="pl">Lower</span></td></tr>
+          <tr><td><strong>Production Planning</strong></td><td>Production quantities, schedules, and resource allocation across time periods.</td><td>MRP, aggregate planning</td><td><span class="pl">Lower</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="div"></div>
+    <p class="sl">The Bullwhip Effect</p>
+    <h2 class="st">A Key Phenomenon — Already Studied, Still Relevant</h2>
+    <div class="card">
+      <p style="font-size:14px;color:var(--gray-600);margin-bottom:.75rem;">The <strong>bullwhip effect</strong> — amplification of demand variability as orders move upstream — has been studied in the LLM context by Jannelli et al. (2025). For this project it is an <em>outcome variable</em>, not a decision task. LLM inventory decisions cause or mitigate the bullwhip effect, and it will be used as an outcome measure when evaluating inventory management decisions.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3: MILESTONES -->
+<div id="page-milestones" class="page">
+  <div class="hero">
+    <p class="ey">Project Timeline</p>
+    <h1>Milestones and <em>Key Deadlines</em></h1>
+    <p>Confirmed dates from SURP communications and conference targets. Hard deadlines in red. The plan is flexible — we will adapt together.</p>
+  </div>
+  <div class="con">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:2rem;align-items:center;">
+      <span style="font-size:12px;font-weight:600;color:var(--gray-600);text-transform:uppercase;letter-spacing:.06em;">Status:</span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray-600);"><span style="width:12px;height:12px;border-radius:50%;background:var(--green);display:inline-block;"></span>Completed</span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray-600);"><span style="width:12px;height:12px;border-radius:50%;background:var(--navy-light);display:inline-block;"></span>Upcoming</span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray-600);"><span style="width:12px;height:12px;border-radius:50%;background:var(--red);display:inline-block;"></span>Hard deadline</span>
+    </div>
+    <p class="sl">Phase 1 — Launch</p><h2 class="st" style="margin-bottom:1.5rem;">Program Initiation</h2>
+    <div class="tl">
+      <div class="mi"><div class="md done"></div><div class="mc"><div class="mdate">May 1-4, 2026</div><h4>Student Selected and Remote Arrangement Confirmed</h4><p>Jeongmin accepted. Fully remote confirmed. Twice-weekly meetings in early weeks.</p></div></div>
+      <div class="mi"><div class="md done"></div><div class="mc"><div class="mdate">May 28, 2026</div><h4>Supply Funding Confirmed ($500)</h4><p>Primary use: IISE 2027 registration. IISE membership ($44) if budget allows after.</p></div></div>
+      <div class="mi"><div class="md up"></div><div class="mc"><div class="mdate">June 22, 2026 — Recommended Start</div><h4>Project Kickoff Meeting</h4><p>Review goals, OneDrive setup, Zotero intro, UNIV 421 confirmation, LLM access check.</p></div></div>
+      <div class="mi"><div class="md up"></div><div class="mc"><div class="mdate">End of Week 1 — June 28</div><h4>Initial Setup Complete</h4><p>All papers read. Zotero created. OneDrive set up. LLM access confirmed.</p></div></div>
+    </div>
+    <div class="div"></div>
+    <p class="sl">Phase 2 — Research</p><h2 class="st" style="margin-bottom:1.5rem;">Benchmarking and Agent Building</h2>
+    <div class="tl">
+      <div class="mi"><div class="md up"></div><div class="mc"><div class="mdate">End of Week 2 — July 5</div><h4>Tasks Confirmed, Protocol Drafted, LLMs Selected</h4><p>2-3 decision tasks confirmed via literature review. Prompts written. LLMs selected based on prior literature and Cal Poly access.</p></div></div>
+      <div class="mi"><div class="md up"></div><div class="mc"><div class="mdate">End of Week 3 — July 12</div><h4>Pilot Testing Complete and First Agent Started</h4><p>Pilot prompts tested across 2+ LLMs. Logging template finalized. First agent prototype begun.</p></div></div>
+      <div class="mi"><div class="md up"></div><div class="mc"><div class="mdate">End of Week 4 — July 19</div><h4>First Round Benchmarking Complete</h4><p>Full experiments across all LLMs (5+ trials per model per task). Data logged. Midpoint review.</p></div></div>
+      <div class="mi"><div class="md up"></div><div class="mc"><div class="mdate">End of Week 5 — July 26</div><h4>Analysis Complete and Agents Operational</h4><p>Comparison tables drafted. All agents operational. VOSviewer map done. Lit review drafted.</p></div></div>
+      <div class="mi"><div class="md up"></div><div class="mc"><div class="mdate">End of Week 6 — August 2</div><h4>Finalized Results and Figures</h4><p>Extended scenario testing done. Agent vs. standalone comparison complete. All figures in OneDrive.</p></div></div>
+    </div>
+    <div class="div"></div>
+    <p class="sl">Phase 3 — Writing and Dissemination</p><h2 class="st" style="margin-bottom:1.5rem;">Paper, Poster, and Presentations</h2>
+    <div class="tl">
+      <div class="mi"><div class="md up"></div><div class="mc"><div class="mdate">End of Week 7 — August 9</div><h4>Full Paper Draft Submitted to Dr. Awwad</h4><p>Complete 6-page IISE conference paper draft in OneDrive. Poster outline done. Abstract drafted.</p></div></div>
+      <div class="mi"><div class="md crit"></div><div class="mc"><div class="mdate">End of Week 8 — August 16 — HARD DEADLINE</div><h4>Paper Finalized and Poster Completed</h4><p>Revised paper final version in OneDrive. SURP poster complete and sent to print.</p></div></div>
+      <div class="mi"><div class="md crit"></div><div class="mc"><div class="mdate">~September 30, 2026 — HARD DEADLINE</div><h4>SURP Poster Submission</h4><p>Printed poster submitted per SURP requirements. Confirm date on UNIV 421 Canvas.</p></div></div>
+      <div class="mi"><div class="md crit"></div><div class="mc"><div class="mdate">Fall 2026 — HARD DEADLINE</div><h4>IISE 2027 Abstract Submission and Conference Registration</h4><p>Submit abstract and register for conference as soon as registration opens. 2026 student rate was $465; 2027 will be higher. Budget covers registration first.</p></div></div>
+      <div class="mi"><div class="md up"></div><div class="mc"><div class="mdate">October 16, 2026</div><h4>SURP+ Poster Symposium</h4><p>Jeongmin presents at the CENG SURP+ Poster Symposium.</p></div></div>
+      <div class="mi"><div class="md up"></div><div class="mc"><div class="mdate">May 22-25, 2027 — Louisville, KY</div><h4>IISE Annual Conference — The Galt House Hotel</h4><p>Jeongmin presents the 6-page paper alongside Dr. Awwad. Cal Poly Spring finals end May 21. Jeongmin travels directly after finals. Attendance is a firm commitment.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 4: WEEKLY SCHEDULE -->
+<div id="page-schedule" class="page">
+  <div class="hero">
+    <p class="ey">8-Week Research Plan</p>
+    <h1>Detailed <em>Weekly Schedule</em></h1>
+    <p>A structured but flexible guide. We will adapt together as the project progresses. Flexibility is a feature, not a bug.</p>
+  </div>
+  <div class="conw">
+    <div class="info">Note to Jeongmin: This plan is a guide, not a rigid script. What matters is consistent progress, open communication, and intellectual curiosity. When in doubt, ask.</div>
+    <div class="card" style="padding:0;overflow:hidden;border-radius:var(--rl);">
+      <table class="wt">
+        <thead><tr><th style="width:80px;">Week</th><th style="width:185px;">Mentoring Focus</th><th>Research Tasks</th><th style="width:230px;">Milestones</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="wn">Week 1</span><br><span style="font-size:11px;color:var(--gray-400);">Jun 22-28</span></td>
+            <td><ul><li>Project overview and expectations</li><li>Introduce proposal and Jannelli et al. (2025)</li><li>Orient to SC decision concepts</li><li>Set up OneDrive folder together</li></ul></td>
+            <td><ul><li>Read all assigned papers — start with Jannelli et al. (2025)</li><li>Install Zotero, create project library, import all papers</li><li>Confirm UNIV 421 enrollment</li><li>Confirm LLM access: ChatGPT EDU, Copilot, Gemini</li><li>Read textbook chapters (Ravindran and Warsing): inventory control, supplier selection, risk management</li><li>Create Make.com free account; complete one tutorial</li></ul></td>
+            <td><span class="mb">UNIV 421 confirmed</span><br><span class="mb">Papers read</span><br><span class="mb">Zotero set up</span><br><span class="mb">OneDrive created</span><br><span class="mb">LLM access confirmed</span></td>
+          </tr>
+          <tr>
+            <td><span class="wn">Week 2</span><br><span style="font-size:11px;color:var(--gray-400);">Jun 29-Jul 5</span></td>
+            <td><ul><li>Experimental design and benchmarking principles</li><li>Guide LLM selection based on literature and Cal Poly access</li><li>Prompt engineering intro</li><li>Discuss agent platform options</li></ul></td>
+            <td><ul><li>Deep literature review of candidate decision tasks</li><li>Consult textbook for baseline policies (EOQ, scoring matrices)</li><li>Confirm 2-3 decision tasks with literature justification</li><li>Select LLMs based on prior literature and free access</li><li>Write first prompt templates for each task</li><li>Decide agent platform: Make.com or Python/LangChain</li></ul></td>
+            <td><span class="mb">Tasks confirmed</span><br><span class="mb">LLMs selected</span><br><span class="mb">Prompts drafted</span><br><span class="mb">Agent platform decided</span></td>
+          </tr>
+          <tr>
+            <td><span class="wn">Week 3</span><br><span style="font-size:11px;color:var(--gray-400);">Jul 6-12</span></td>
+            <td><ul><li>Review benchmarking protocol</li><li>Feedback on prompts and scenario design</li><li>Introduce agent architecture from Jannelli et al.</li></ul></td>
+            <td><ul><li>Run pilot prompts across 2 LLMs for all tasks</li><li>Refine prompts based on pilot results</li><li>Finalize output logging template in Excel/OneDrive</li><li>Begin first SC LLM agent in Make.com or Python/LangChain</li></ul></td>
+            <td><span class="mb">Pilot results logged</span><br><span class="mb">Prompts refined</span><br><span class="mb">Logging template ready</span><br><span class="mb">First agent started</span></td>
+          </tr>
+          <tr>
+            <td><span class="wn">Week 4</span><br><span style="font-size:11px;color:var(--gray-400);">Jul 13-19</span></td>
+            <td><ul><li>Midpoint review</li><li>Discuss LLM consistency issues</li><li>Feedback on agent design</li></ul></td>
+            <td><ul><li>Full benchmarking: all LLMs x all tasks x 5+ trials each</li><li>Log all outputs in OneDrive</li><li>Test agent across multiple scenario variants</li><li>Begin second agent (disruption or supplier task)</li></ul></td>
+            <td><span class="mb">Round 1 benchmarking done</span><br><span class="mb">Raw data in OneDrive</span><br><span class="mb">Agent tested</span></td>
+          </tr>
+          <tr>
+            <td><span class="wn">Week 5</span><br><span style="font-size:11px;color:var(--gray-400);">Jul 20-26</span></td>
+            <td><ul><li>Review analysis approach</li><li>Introduction to VOSviewer</li><li>Feedback on lit review draft</li></ul></td>
+            <td><ul><li>Analyze outputs: quality scores, consistency, cost estimates</li><li>Finalize all agent prototypes</li><li>Run VOSviewer: Zotero export to RIS to keyword map to PNG</li><li>Draft Literature Review section in Word</li></ul></td>
+            <td><span class="mb">Comparison tables drafted</span><br><span class="mb">All agents operational</span><br><span class="mb">VOSviewer map done</span><br><span class="mb">Lit review drafted</span></td>
+          </tr>
+          <tr>
+            <td><span class="wn">Week 6</span><br><span style="font-size:11px;color:var(--gray-400);">Jul 27-Aug 2</span></td>
+            <td><ul><li>Connect findings to iSCDT and Jannelli et al.</li><li>Review visualization strategies</li><li>Feedback on extended scenarios</li></ul></td>
+            <td><ul><li>Run stress-test scenarios</li><li>Compare agent vs. standalone LLM responses</li><li>Create publication-ready figures in OneDrive/Figures</li><li>Draft Methods and Results sections</li></ul></td>
+            <td><span class="mb">Extended benchmarking done</span><br><span class="mb">Figures in OneDrive</span><br><span class="mb">Methods and Results drafted</span></td>
+          </tr>
+          <tr>
+            <td><span class="wn">Week 7</span><br><span style="font-size:11px;color:var(--gray-400);">Aug 3-9</span></td>
+            <td><ul><li>Review full draft with detailed feedback</li><li>APA citations and scholarly writing discussion</li><li>Poster design principles</li></ul></td>
+            <td><ul><li>Write complete 6-page paper draft in Word (all sections)</li><li>Save draft to OneDrive for Dr. Awwad review</li><li>Create SURP poster outline and begin design</li><li>Draft IISE 2027 abstract</li></ul></td>
+            <td><span class="mbr">HARD: Full paper draft in OneDrive</span><br><span class="mb">Poster outline done</span><br><span class="mb">Abstract drafted</span></td>
+          </tr>
+          <tr>
+            <td><span class="wn">Week 8</span><br><span style="font-size:11px;color:var(--gray-400);">Aug 10-16</span></td>
+            <td><ul><li>Final review and reflection</li><li>Conference presentation strategy</li><li>Career and graduate school discussion</li></ul></td>
+            <td><ul><li>Revise paper based on Dr. Awwad feedback</li><li>Complete and finalize SURP poster design</li><li>Submit poster for printing (allow 3-5 business days)</li><li>Finalize abstract</li><li>Ensure all materials organized in OneDrive</li></ul></td>
+            <td><span class="mbr">HARD: Paper finalized</span><br><span class="mbr">HARD: Poster sent to print</span><br><span class="mb">Abstract finalized</span><br><span class="mb">All materials in OneDrive</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 5: LITERATURE -->
+<div id="page-literature" class="page">
+  <div class="hero">
+    <p class="ey">Research Foundation</p>
+    <h1>Initial <em>Literature Review</em> Papers</h1>
+    <p>Read all papers during Week 1. Enter each into Zotero. Save PDFs to OneDrive under Literature.</p>
+  </div>
+  <div class="con">
+    <div class="info">Instructions for Jeongmin: Add all papers to Zotero using the browser connector. Save PDFs to OneDrive. Use Microsoft Word for all writing. Do not use Google Drive or Google Docs.</div>
+    <div class="pc"><p class="pj">International Journal of Production Research · Published Online Dec 2025</p><h4>Agentic LLMs in the supply chain: Towards autonomous multi-agent consensus-seeking</h4><p class="pa">Jannelli, V., Schöpf, S., Bickel, M., Netland, T., and Brintrup, A. (2025)</p><p class="pabs">The primary methodological model for this project. Introduces a modular consensus-seeking framework for LLM agents in a sequential supply chain. Tests multiple foundation models with zero-shot prompting. Explicitly identifies in Section 2.4 the absence of supply chain-specific LLM benchmarking environments — the gap this project directly answers. Open-source implementation via LangGraph available on GitHub.</p><div class="pt"><span class="tag tn">Primary reference</span><span class="tag ts">LLM agents</span><span class="tag ts">Multi-agent consensus</span><span class="tag ts">Inventory</span></div><p style="font-size:12px;color:var(--gray-400);margin-top:.75rem;">DOI: 10.1080/00207543.2025.2604311 · arXiv: 2411.10184</p></div>
+    <div class="pc"><p class="pj">ISE Magazine · October 2025</p><h4>Intelligent digital twins offer a smarter solution for supply chains</h4><p class="pa">Kramer, Z., and Awwad, M. (2025)</p><p class="pabs">Establishes the iSCDT framework. Did not benchmark LLMs empirically. This project provides the benchmarking evidence to extend and validate the iSCDT — a secondary objective.</p><div class="pt"><span class="tag tn">Core reference</span><span class="tag tg">Faculty mentor's work</span><span class="tag ts">iSCDT</span></div></div>
+    <div class="pc"><p class="pj">Machines, 13(2), 109 · 2025</p><h4>Digital twin-based prediction and optimization for dynamic supply chain management</h4><p class="pa">Kim, D.-H., Kim, G.-Y., and Noh, S. D. (2025)</p><p class="pabs">Digital twin framework for supply chain prediction and optimization. Provides the digital twin integration context. Relevant for iSCDT extension objectives and scenario design.</p><div class="pt"><span class="tag ts">Digital twin</span><span class="tag ts">Optimization</span></div><p style="font-size:12px;color:var(--gray-400);margin-top:.75rem;">DOI: 10.3390/machines13020109</p></div>
+    <div class="pc"><p class="pj">MDPI Systems · Vol. 14, No. 4 (2025)</p><h4>Multi-agent AI systems for advanced data analytics and decision-making in supply chain networks</h4><p class="pabs">Reviews multi-agent AI system architectures for supply chain analytics and decision support. Theoretical grounding for agent coordination. Relevant to the agent-building component.</p><div class="pt"><span class="tag ts">Multi-agent AI</span><span class="tag tgray">Analytics</span></div></div>
+    <div class="pc"><p class="pj">Industry Review · 2024-2025</p><h4>Transforming sourcing and supply chain management: The evolution of AI agents in modern procurement</h4><p class="pabs">Examines AI agents in procurement and sourcing. Provides industry context for the supplier selection task and conference paper discussion section.</p><div class="pt"><span class="tag ts">AI agents</span><span class="tag ts">Procurement</span></div></div>
+    <div class="pc"><p class="pj">Master's Thesis</p><h4>Thesis document — LLM and supply chain decision systems (tesi.md)</h4><p class="pabs">Provides detailed treatment of AI and LLM methods in supply chain contexts. Review methodology sections for benchmarking design. Available in project knowledge base.</p><div class="pt"><span class="tag tgray">Thesis</span><span class="tag tgray">Methodology</span></div></div>
+    <div class="div"></div>
+    <div class="card" style="background:var(--navy);border:none;">
+      <h3 style="font-family:var(--fd);font-size:20px;color:#fff;margin-bottom:.75rem;">Expanding the Literature</h3>
+      <ul style="font-size:13px;color:rgba(255,255,255,.8);padding-left:20px;line-height:1.85;">
+        <li><strong style="color:white;">Textbook (required):</strong> Ravindran, A. R., and Warsing, D. P. Supply Chain Engineering: Models and Applications. Read chapters on inventory control, supplier selection, transportation, and risk management.</li>
+        <li><strong style="color:white;">InvAgent:</strong> Quan, Y., and Liu, Z. (2024). InvAgent: A Large Language Model Based Multi-Agent System for Inventory Management. arXiv:2407.11384. Read early — closely related to this project.</li>
+        <li><strong style="color:white;">Cross-model benchmarking:</strong> Search "LLM comparison supply chain," "foundation model evaluation operations," "GPT vs Claude benchmark industrial tasks."</li>
+        <li><strong style="color:white;">LLM consistency:</strong> Search "LLM output consistency," "non-determinism language models," "LLM reproducibility." Jannelli et al. flag this as a key limitation.</li>
+        <li><strong style="color:white;">Prompt engineering:</strong> Search "prompt engineering supply chain," "zero-shot prompting operations management," "chain-of-thought reasoning inventory."</li>
+        <li><strong style="color:white;">Supply chain risk management:</strong> Search "LLM supply chain risk," "AI disruption response," "supply chain resilience AI."</li>
+        <li><strong style="color:white;">Agent platforms:</strong> Review Make.com AI agents documentation and LangGraph tutorials.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 6: RESEARCH GUIDE -->
+<div id="page-resources" class="page">
+  <div class="hero">
+    <p class="ey">Student Research Guide</p>
+    <h1>Literature Review, Zotero, VOSviewer and <em>Conference Abstract Writing</em></h1>
+    <p>A step-by-step guide: conducting a literature review, using AI tools for synthesis, bibliometric analysis with VOSviewer, and writing a conference abstract for IISE 2027.</p>
+  </div>
+  <div class="con">
+    <div class="card" style="border-left:4px solid var(--navy);margin-bottom:2rem;">
+      <h3 style="font-size:16px;font-weight:600;color:var(--navy);margin-bottom:.75rem;">What is a Literature Review?</h3>
+      <p style="font-size:14px;color:var(--gray-600);margin-bottom:.75rem;">A literature review is the intellectual foundation of your research — a synthesis that tells a coherent story about what is known, what is contested, and most importantly, what is missing. It is not a one-paper-at-a-time summary.</p>
+      <p style="font-size:14px;color:var(--gray-600);">It drives your experimental design, metric selection, LLM choices, and interpretation of results. Every non-obvious claim in your paper needs a citation — and citations come from reading.</p>
+    </div>
+    <div class="sb"><div class="sh"><div class="sn">1</div><h3>Define your bodies of knowledge</h3></div>
+      <p>Extract keyword groups from the research questions:</p>
+      <ul>
+        <li><strong>LLM decision agents:</strong> "large language models supply chain," "LLM inventory control," "agentic AI operations"</li>
+        <li><strong>Supply chain tasks:</strong> "inventory control benchmarking," "disruption response AI," "supplier selection," "bullwhip effect," "supply chain risk"</li>
+        <li><strong>Benchmarking:</strong> "AI benchmarking framework," "LLM evaluation metrics," "foundation model comparison"</li>
+        <li><strong>Agent frameworks:</strong> "multi-agent supply chain," "LangGraph inventory," "Make.com LLM automation"</li>
+      </ul>
+      <div class="tip">Use these in Google Scholar, Scopus, Web of Science, and arXiv.org. Cal Poly Library OneSearch gives full-text access to most journals.</div>
+    </div>
+    <div class="sb"><div class="sh"><div class="sn">2</div><h3>Collect reliable sources</h3></div>
+      <ul>
+        <li>Peer-reviewed journal and conference articles (primary)</li>
+        <li>arXiv preprints from established research groups</li>
+        <li><strong>Textbooks</strong> — especially Ravindran and Warsing for supply chain fundamentals</li>
+        <li>Industry white papers (IISE, McKinsey, Gartner on AI in supply chains)</li>
+        <li>Platform documentation: Make.com, LangGraph, n8n</li>
+      </ul>
+      <div class="tip">If a paper is paywalled, check arXiv first. For others, use Cal Poly Interlibrary Loan (ILL).</div>
+    </div>
+    <div class="sb"><div class="sh"><div class="sn">3</div><h3>Set up Zotero — your reference manager</h3></div>
+      <p>Zotero is free and integrates with Microsoft Word. Use it from Day 1.</p>
+      <h4 class="ch">Installation</h4>
+      <ol>
+        <li>Go to <a href="https://www.zotero.org" target="_blank">zotero.org</a> and download the desktop app.</li>
+        <li>Create a free account and sign in — library syncs automatically.</li>
+        <li>Install the <strong>Zotero Connector</strong> browser extension for Chrome or Edge. One click imports any reference from any webpage.</li>
+        <li>Create collection: "SURP 2026 — LLMs Supply Chain" with sub-collections: Core Papers, LLM Evaluation, Supply Chain Tasks, Agent Frameworks, Textbooks.</li>
+        <li>Set citation style to <strong>APA 7th Edition</strong> in Zotero preferences.</li>
+      </ol>
+      <div class="tip"><strong>Zotero full tutorial video:</strong></div>
+      <div class="vc"><div class="vi"><svg viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></div><div class="vinfo"><p>How To Use Zotero 2025 (Including Zotero Connector) — Full Tutorial</p><span><a href="https://www.youtube.com/watch?v=PerZScScT5A" target="_blank">youtube.com/watch?v=PerZScScT5A</a></span></div></div>
+      <h4 class="ch">Using Zotero in Microsoft Word</h4>
+      <ol>
+        <li>Open Microsoft Word and click the <strong>Zotero tab</strong> in the ribbon.</li>
+        <li>Click <strong>Add/Edit Citation</strong> and search by author to insert inline.</li>
+        <li>Click <strong>Add/Edit Bibliography</strong> at end of document — reference list auto-generated in APA 7th.</li>
+        <li>Always save Word documents to the <strong>shared OneDrive folder</strong>.</li>
+      </ol>
+      <div class="warn">Always verify Zotero captured correct metadata before inserting citations. Check author names, year, and DOI. Never cite a paper you have not personally read.</div>
+    </div>
+    <div class="sb"><div class="sh"><div class="sn">4</div><h3>Leverage AI tools for synthesis — critically</h3></div>
+      <h4 class="ch">NotebookLM (Google) — Recommended for synthesis</h4>
+      <ol>
+        <li>Go to <a href="https://notebooklm.google.com" target="_blank">notebooklm.google.com</a> and create a notebook for this project.</li>
+        <li>Upload PDFs of your key papers.</li>
+        <li>Ask: "What methods do these papers use to evaluate LLM performance?" or "What gaps do they identify?"</li>
+        <li>Use summaries as a starting point — verify everything against the original paper before citing.</li>
+      </ol>
+      <h4 class="ch">Other useful tools</h4>
+      <ul>
+        <li><strong>ResearchRabbit:</strong> Visualize citation networks — discover related papers.</li>
+        <li><strong>SciSpace:</strong> Interactive AI explanations of dense technical papers.</li>
+        <li><strong>Connected Papers / Litmaps:</strong> Citation neighborhood mapping.</li>
+        <li><strong>Claude (claude.ai):</strong> Explain technical concepts, help understand methodology sections, assist with writing drafts.</li>
+      </ul>
+      <div class="warn">AI tools can hallucinate — inventing citations or misrepresenting findings. Always verify against the original document. Never cite a paper based solely on an AI summary. Dr. Awwad will check your citations.</div>
+    </div>
+    <div class="sb"><div class="sh"><div class="sn">5</div><h3>Synthesize — connect, do not just summarize</h3></div>
+      <p>Ask these questions across all sources:</p>
+      <ul>
+        <li><strong>Patterns:</strong> What findings appear consistently across 3 or more sources?</li>
+        <li><strong>Gaps:</strong> Where does the literature show missing data or unexplored combinations? Section 2.4 of Jannelli et al. (2025) is a model example.</li>
+        <li><strong>Translation:</strong> What proven methods could be adapted to this project?</li>
+        <li><strong>Connection:</strong> How do findings support or challenge your experimental design?</li>
+      </ul>
+      <div class="tip">Use NotebookLM to draft initial synthesis, then rewrite entirely in your own words. The literature review must read as your intellectual contribution.</div>
+    </div>
+    <div class="sb"><div class="sh"><div class="sn">6</div><h3>Build summary tables and gap analysis</h3></div>
+      <p><strong>Table A — Summary of Key Studies:</strong> Columns: Author(s) and Year, Decision Task, LLMs Used, Method/Framework, Key Findings, Limitations.</p>
+      <p style="margin-top:.75rem;"><strong>Table B — Methodology Matrix:</strong> Rows = papers. Columns = decision task, model type, approach (chat/agent/API), evaluation metric. Mark with a checkmark where covered. Empty cells show the gaps this project fills.</p>
+      <div class="tip">Save both tables to OneDrive. They become Table 1 and Table 2 in the conference paper. Dr. Awwad reviews them in Week 2.</div>
+    </div>
+    <div class="sb"><div class="sh"><div class="sn">7</div><h3>Bibliometric visualization with VOSviewer</h3></div>
+      <p>VOSviewer creates visual maps of keyword co-occurrence. This figure will appear in the conference paper and SURP poster.</p>
+      <h4 class="ch">Download and install</h4>
+      <ol><li>Go to <a href="https://www.vosviewer.com" target="_blank">vosviewer.com</a> and download for your OS. Java required — download from <a href="https://www.java.com" target="_blank">java.com</a> if prompted.</li></ol>
+      <h4 class="ch">Workflow: Zotero to VOSviewer</h4>
+      <ol>
+        <li>In Zotero: File, Export Library, RIS format, save to OneDrive.</li>
+        <li>Open VOSviewer, Create map based on bibliographic data, Read from RIS file.</li>
+        <li>Choose Co-occurrence, Keywords (author keywords). Set minimum occurrence to 2.</li>
+        <li>Uncheck generic terms like "study," "review," "analysis."</li>
+        <li>Click Finish. Color clusters are topic groups. Node size is keyword frequency.</li>
+        <li>Export as PNG and save to OneDrive Figures folder. Save .json map file for later.</li>
+      </ol>
+      <div class="tip"><strong>Video tutorial — connecting Zotero with VOSviewer:</strong></div>
+      <div class="vc"><div class="vi"><svg viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg></div><div class="vinfo"><p>How to Run a Bibliometric Analysis in VOSviewer with Zotero</p><span><a href="https://www.youtube.com/watch?v=beNo3yeJ6YM&t=1s" target="_blank">youtube.com/watch?v=beNo3yeJ6YM</a></span></div></div>
+    </div>
+    <div class="sb"><div class="sh"><div class="sn">8</div><h3>Write the literature review section</h3></div>
+      <div class="cb">Recommended structure for the conference paper:
+
+2. Literature Review
+  2.1 Introduction and Overview
+  2.2 LLM Agents in Supply Chain Decision-Making
+      2.2.1 Evolution from Rule-Based Agents to LLM Agents
+      2.2.2 Existing Frameworks — Jannelli et al. (2025) and Related Work
+      2.2.3 Known Limitations: Consistency, Interpretability, Human-in-the-Loop
+  2.3 Supply Chain Decision Tasks and Baselines
+      2.3.1 Inventory Control (EOQ, s,S policies, bullwhip effect)
+      2.3.2 Disruption Response and Risk Management
+      2.3.3 Supplier Selection
+  2.4 Benchmarking Methodology for AI in Operations
+      2.4.1 Existing Evaluation Approaches
+      2.4.2 Identified Gap: Absence of Cross-Model Standards
+  2.5 Summary Tables and Gap Analysis
+  2.6 Bibliometric Visualization (VOSviewer)
+  2.7 Conclusion and Transition to Research Design</div>
+      <div class="tip">Every non-obvious claim needs an APA 7th edition in-text citation. Insert citations using Zotero as you write — do not add them retroactively.</div>
+    </div>
+    <div class="div"></div>
+    <p class="sl">Conference Writing</p>
+    <h2 class="st">How to Write a Conference Abstract</h2>
+    <p style="color:var(--gray-600);margin-bottom:1.5rem;">The IISE 2027 abstract will be your first public academic submission. It must be precise, complete, and compelling in a small space — typically 250 to 500 words.</p>
+    <div class="sb"><div class="sh"><div class="sn">A</div><h3>What is a conference abstract?</h3></div>
+      <p>A conference abstract summarizes your research and is submitted for review by a program committee. If accepted, you present at the conference. The abstract must stand alone — a reader who sees only the abstract must understand what you did, why it matters, and what you found. For IISE, it is the primary artifact reviewed before your presentation.</p>
+    </div>
+    <div class="sb"><div class="sh"><div class="sn">B</div><h3>The five-part structure</h3></div>
+      <ol>
+        <li style="margin-bottom:10px;"><strong>Motivation and Context (1-2 sentences):</strong> Why does this problem matter? Example: "Supply chain management increasingly relies on AI-driven decision support, yet no standardized framework exists for comparing large language model performance across operational tasks."</li>
+        <li style="margin-bottom:10px;"><strong>Problem Statement and Gap (1-2 sentences):</strong> What specific gap does your work address? Ground this in Jannelli et al. (2025). Example: "Existing research demonstrates single-model LLM implementations but lacks systematic cross-model benchmarking with standardized evaluation protocols."</li>
+        <li style="margin-bottom:10px;"><strong>Approach and Methods (3-5 sentences):</strong> What did you do? Describe the benchmarking framework, decision tasks, LLMs evaluated, baselines, and agent-building component. Name the specific models and tasks.</li>
+        <li style="margin-bottom:10px;"><strong>Results and Findings (2-4 sentences):</strong> What did you find? Include specific results — which model performed best, how consistent were outputs, how did agents compare to standalone responses.</li>
+        <li style="margin-bottom:10px;"><strong>Conclusions and Implications (1-2 sentences):</strong> What does it mean for practitioners and researchers? How does it connect to iSCDT or broader AI-in-operations work?</li>
+      </ol>
+      <div class="tip">Draft the abstract from your Week 7 paper. The abstract is the last thing you write — after the paper is complete. Every sentence must reflect content that exists in the paper.</div>
+    </div>
+    <div class="sb"><div class="sh"><div class="sn">C</div><h3>Abstract quality checklist</h3></div>
+      <ul>
+        <li>Does it clearly state the research gap?</li>
+        <li>Are the specific LLMs and decision tasks named?</li>
+        <li>Are evaluation metrics described, even briefly?</li>
+        <li>Are key findings stated with at least one specific result?</li>
+        <li>Is the word count within the IISE limit? (Check iise.org for 2027 guidelines.)</li>
+        <li>Is writing in active voice, past tense for completed work?</li>
+        <li>Has Dr. Awwad reviewed and approved it before submission?</li>
+      </ul>
+    </div>
+    <div class="sb"><div class="sh"><div class="sn">D</div><h3>Example abstract skeleton</h3></div>
+      <div class="cb">Large language models (LLMs) are increasingly proposed as autonomous decision agents in
+supply chain management, yet no systematic benchmarking framework exists for comparing
+their performance across standardized operational tasks. This gap — explicitly identified by
+Jannelli et al. (2025) — limits evidence-based guidance for practitioners.
+
+This study develops and applies a reproducible benchmarking framework to evaluate [X]
+large language models — including [list models] — on [2-3] supply chain decision tasks:
+[inventory replenishment], [disruption response], and [supplier selection]. Using structured
+prompts through both chat interfaces and automated agent workflows built in [platform],
+each model was evaluated against established baselines using metrics including decision
+quality, output consistency, reasoning transparency, and cost impact.
+
+Results indicate that [Model A] demonstrated [finding] on [Task 1], while [Model B]
+outperformed others in [Task 2]. Output consistency varied significantly — consistent with
+limitations noted by Jannelli et al. (2025). LLM agents produced [more/less] consistent
+decisions than standalone chat responses.
+
+These findings provide the first systematic cross-model comparison on structured supply
+chain tasks and offer guidance for embedding LLM agents within intelligent supply chain
+digital twin architectures (Kramer and Awwad, 2025).</div>
+      <div class="warn">This is a skeleton, not a template to copy. Replace every bracketed element with your actual findings. Dr. Awwad will review it before submission.</div>
+    </div>
+    <div class="sb"><div class="sh"><div class="sn">9</div><h3>APA 7th edition — quick reference</h3></div>
+      <div class="cb">In-text — three or more authors:
+  Jannelli et al. (2025) demonstrated that LLM agents can ...
+
+In-text — two authors:
+  Kramer and Awwad (2025) introduced the iSCDT framework ...
+  The iSCDT framework integrates ... (Kramer and Awwad, 2025).
+
+Reference list:
+Jannelli, V., Schopf, S., Bickel, M., Netland, T., and Brintrup, A. (2025). Agentic
+  LLMs in the supply chain: Towards autonomous multi-agent consensus-seeking.
+  International Journal of Production Research. Advance online publication.
+  https://doi.org/10.1080/00207543.2025.2604311
+
+Kramer, Z., and Awwad, M. (2025, October). Intelligent digital twins offer a smarter
+  solution for supply chains. ISE Magazine.
+
+Kim, D.-H., Kim, G.-Y., and Noh, S. D. (2025). Digital twin-based prediction and
+  optimization for dynamic supply chain management. Machines, 13(2), 109.
+  https://doi.org/10.3390/machines13020109</div>
+    </div>
+    <div class="div"></div>
+    <p class="sl">Quick Reference</p><h2 class="st">Tools and Links</h2>
+    <div class="g2">
+      <div class="card"><h4 style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:.75rem;">Literature Databases</h4><ul style="font-size:13px;color:var(--gray-600);padding-left:16px;"><li><a href="https://scholar.google.com" target="_blank">Google Scholar</a></li><li>Scopus (via Cal Poly Library)</li><li>Web of Science (via Cal Poly Library)</li><li><a href="https://arxiv.org" target="_blank">arXiv.org</a></li></ul></div>
+      <div class="card"><h4 style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:.75rem;">Key Tools</h4><ul style="font-size:13px;color:var(--gray-600);padding-left:16px;"><li><a href="https://www.zotero.org" target="_blank">Zotero</a> — Reference manager (required)</li><li><a href="https://www.vosviewer.com" target="_blank">VOSviewer</a> — Bibliometric visualization</li><li><a href="https://notebooklm.google.com" target="_blank">NotebookLM</a> — AI synthesis</li><li><a href="https://www.make.com" target="_blank">Make.com</a> — Agent building</li></ul></div>
+      <div class="card"><h4 style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:.75rem;">Writing Resources</h4><ul style="font-size:13px;color:var(--gray-600);padding-left:16px;"><li><a href="https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html" target="_blank">Purdue OWL — APA 7th Edition</a></li><li>IISE paper templates — check iise.org/annual</li></ul></div>
+      <div class="card"><h4 style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:.75rem;">Project Contacts</h4><ul style="font-size:13px;color:var(--gray-600);padding-left:16px;"><li>Dr. Awwad: <a href="mailto:mawwad@calpoly.edu">mawwad@calpoly.edu</a></li><li>Jeongmin: <a href="mailto:jhwang50@calpoly.edu">jhwang50@calpoly.edu</a></li><li>All deliverables: Shared OneDrive folder</li><li>IISE Conference: <a href="https://www.iise.org/annual/" target="_blank">iise.org/annual</a></li></ul></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <strong>SURP 2026 — Cal Poly SLO, Industrial and Manufacturing Engineering</strong><br>
+  Comparative Evaluation of LLMs for Operational Decision Making in Supply Chains<br>
+  Faculty Mentor: Dr. Mohamed A. Awwad &nbsp;·&nbsp; Student Researcher: Jeongmin Hwang
+</footer>
+
+<script>
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nl a').forEach(function(a){a.classList.remove('active');});
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
